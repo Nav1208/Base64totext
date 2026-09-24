@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>HackLab — CTF Toolkit</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --bg: #05080b;
+    --panel: #0b1118;
+    --card: #101923;
+    --border: #1d2b36;
+    --text: #e8f7ff;
+    --muted: #8396a3;
+    --green: #00ff9d;
+    --cyan: #00d9ff;
+    --red: #ff4d6d;
+}
+
+body {
+    font-family: "Courier New", monospace;
+    background:
+        radial-gradient(circle at 15% 10%, rgba(0,255,157,.08), transparent 30%),
+        radial-gradient(circle at 85% 20%, rgba(0,217,255,.07), transparent 30%),
+        var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+/* NAVBAR */
+
+nav {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(5,8,11,.9);
+    backdrop-filter: blur(15px);
+    border-bottom: 1px solid var(--border);
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 18px 25px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    color: var(--green);
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.logo span {
+    color: var(--cyan);
+}
+
+nav ul {
+    display: flex;
+    gap: 25px;
+    list-style: none;
+}
+
+nav a {
+    color: var(--muted);
+    text-decoration: none;
+}
+
+nav a:hover {
+    color: var(--green);
+}
+
+/* HERO */
+
+.hero {
+    max-width: 1200px;
+    margin: auto;
+    padding: 100px 25px 70px;
+    text-align: center;
+}
+
+.terminal {
+    display: inline-block;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    padding: 10px 18px;
+    border-radius: 6px;
+    color: var(--green);
+    margin-bottom: 25px;
+}
+
+.hero h1 {
+    font-size: clamp(45px, 8vw, 85px);
+    line-height: 1;
+    margin-bottom: 25px;
+}
+
+.hero h1 span {
+    color: var(--green);
+}
+
+.hero p {
+    max-width: 700px;
+    margin: auto;
+    color: var(--muted);
+    line-height: 1.7;
+}
+
+/* MAIN */
+
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 0 25px 70px;
+}
+
+.section-title {
+    margin: 45px 0 18px;
+}
+
+.section-title small {
+    color: var(--green);
+}
+
+.section-title h2 {
+    margin-top: 5px;
+}
+
+/* ANALYZER */
+
+.analyzer {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    padding: 25px;
+}
+
+textarea {
+    width: 100%;
+    min-height: 170px;
+
+    background: #05090d;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    padding: 15px;
+
+    color: var(--text);
+    font-family: "Courier New", monospace;
+
+    resize: vertical;
+    outline: none;
+}
+
+textarea:focus {
+    border-color: var(--green);
+}
+
+.buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+button {
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+
+    padding: 12px 18px;
+
+    border-radius: 8px;
+
+    font-family: inherit;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+button:hover {
+    border-color: var(--green);
+}
+
+.analyze-btn {
+    background: #063b2b;
+    border-color: var(--green);
+    color: var(--green);
+}
+
+/* RESULTS */
+
+.results {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(170px, 1fr));
+
+    gap: 10px;
+
+    margin-top: 20px;
+}
+
+.result {
+    background: var(--card);
+    border: 1px solid var(--border);
+
+    border-radius: 10px;
+
+    padding: 15px;
+}
+
+.result h3 {
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.status {
+    font-size: 12px;
+}
+
+.detected {
+    color: var(--green);
+}
+
+.not-detected {
+    color: var(--muted);
+}
+
+.decoded-box {
+    margin-top: 20px;
+
+    background: #05090d;
+    border: 1px solid var(--border);
+
+    border-radius: 10px;
+
+    padding: 15px;
+
+    display: none;
+}
+
+.decoded-box h3 {
+    color: var(--green);
+    margin-bottom: 10px;
+}
+
+.decoded-output {
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--text);
+}
+
+/* TOOLS */
+
+.tools-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(250px, 1fr));
+
+    gap: 15px;
+}
+
+.tool {
+    background: var(--card);
+    border: 1px solid var(--border);
+
+    border-radius: 12px;
+
+    padding: 20px;
+
+    transition: .2s;
+}
+
+.tool:hover {
+    transform: translateY(-3px);
+    border-color: var(--green);
+}
+
+.tool-icon {
+    width: 42px;
+    height: 42px;
+
+    display: grid;
+    place-items: center;
+
+    background: #071c17;
+    border: 1px solid #164d3c;
+
+    border-radius: 8px;
+
+    color: var(--green);
+
+    margin-bottom: 15px;
+}
+
+.tool h3 {
+    margin-bottom: 10px;
+}
+
+.tool p {
+    color: var(--muted);
+
+    font-family: Arial, sans-serif;
+
+    font-size: 14px;
+
+    line-height: 1.6;
+
+    min-height: 70px;
+}
+
+.tool a {
+    display: inline-block;
+
+    margin-top: 15px;
+
+    color: var(--green);
+
+    text-decoration: none;
+
+    font-size: 13px;
+}
+
+.tool a:hover {
+    text-decoration: underline;
+}
+
+/* FOOTER */
+
+footer {
+    border-top: 1px solid var(--border);
+
+    padding: 30px 20px;
+
+    text-align: center;
+
+    color: var(--muted);
+
+    font-size: 12px;
+}
+
+/* MOBILE */
+
+@media(max-width:700px) {
+
+    nav ul {
+        display: none;
+    }
+
+    .hero {
+        padding-top: 70px;
+    }
+
+    .analyzer {
+        padding: 15px;
+    }
+
+    .tools-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ========================= -->
+<!-- NAVIGATION -->
+<!-- ========================= -->
+
+<nav>
+
+<div class="nav-container">
+
+<div class="logo">
+Hack<span>Lab</span>_
+</div>
+
+<ul>
+<li><a href="#analyzer">Analyzer</a></li>
+<li><a href="#tools">Tools</a></li>
+<li><a href="#encoding">Encoding</a></li>
+<li><a href="#forensics">Forensics</a></li>
+</ul>
+
+</div>
+
+</nav>
+
+
+<!-- ========================= -->
+<!-- HERO -->
+<!-- ========================= -->
+
+<section class="hero">
+
+<div class="terminal">
+>_ CTF / HACKATHON TOOLKIT
+</div>
+
+<h1>
+Hack<span>Lab</span>_
+</h1>
+
+<p>
+Your centralized toolkit for Capture The Flag competitions,
+hackathons, cybersecurity challenges, decoding, encoding,
+hash analysis, metadata inspection, and digital forensics.
+</p>
+
+</section>
+
+
+<div class="container">
+
+
+<!-- ========================= -->
+<!-- ANALYZER -->
+<!-- ========================= -->
+
+<div id="analyzer" class="section-title">
+
+<small>01 / INPUT ANALYSIS</small>
+
+<h2>
+Universal String Analyzer
+</h2>
+
+</div>
+
+
+<div class="analyzer">
+
+<p style="color:var(--muted); margin-bottom:15px;">
+Paste a suspicious string below. HackLab will check
+common formats automatically.
+</p>
+
+
+<textarea
+id="input"
+placeholder="Paste your text here...
+
+Examples:
+
+48656c6c6f20576f726c64
+
+SGVsbG8gV29ybGQ=
+
+01001000 01101001
+
+JWT_TOKEN_HERE
+
+5d41402abc4b2a76b9719d911017c592">
+</textarea>
+
+
+<div class="buttons">
+
+<button
+class="analyze-btn"
+onclick="analyze()">
+Analyze Input
+</button>
+
+<button onclick="clearInput()">
+Clear
+</button>
+
+</div>
+
+
+<div id="results" class="results"></div>
+
+
+<div id="decodedBox" class="decoded-box">
+
+<h3>
+Possible Decoded Output
+</h3>
+
+<div
+id="decodedOutput"
+class="decoded-output">
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- ========================= -->
+<!-- ESSENTIAL TOOLS -->
+<!-- ========================= -->
+
+<div id="tools" class="section-title">
+
+<small>02 / ESSENTIAL TOOLS</small>
+
+<h2>
+Cybersecurity Tools
+</h2>
+
+</div>
+
+
+<div class="tools-grid">
+
+
+<!-- CYBERCHEF -->
+
+<div class="tool">
+
+<div class="tool-icon">
+⚗
+</div>
+
+<h3>
+CyberChef
+</h3>
+
+<p>
+The Swiss Army knife of cybersecurity.
+Encode, decode, hash, compress, encrypt,
+extract and transform data.
+</p>
+
+<a
+href="https://gchq.github.io/CyberChef/"
+target="_blank">
+
+Open CyberChef →
+
+</a>
+
+</div>
+
+
+<!-- HASH IDENTIFIER -->
+
+<div class="tool">
+
+<div class="tool-icon">
+#
+</div>
+
+<h3>
+Hash Identifier
+</h3>
+
+<p>
+Identify possible hash algorithms such as
+MD5, SHA-1, SHA-256 and other common formats.
+</p>
+
+<a
+href="https://hashes.com/en/tools/hash_identifier"
+target="_blank">
+
+Hash Identifier →
+
+</a>
+
+</div>
+
+
+<!-- CRACKSTATION -->
+
+<div class="tool">
+
+<div class="tool-icon">
+🔐
+</div>
+
+<h3>
+Hash Lookup
+</h3>
+
+<p>
+Search known hashes using public databases.
+Useful when working with CTF password challenges.
+</p>
+
+<a
+href="https://crackstation.net/"
+target="_blank">
+
+Open CrackStation →
+
+</a>
+
+</div>
+
+
+<!-- JWT -->
+
+<div class="tool">
+
+<div class="tool-icon">
+JWT
+</div>
+
+<h3>
+JWT Decoder
+</h3>
+
+<p>
+Inspect JSON Web Token headers and payloads
+for web security challenges.
+</p>
+
+<a
+href="https://jwt.io/"
+target="_blank">
+
+Open JWT.io →
+
+</a>
+
+</div>
+
+
+<!-- REGEX -->
+
+<div class="tool">
+
+<div class="tool-icon">
+.*
+</div>
+
+<h3>
+Regex Tester
+</h3>
+
+<p>
+Build and test regular expressions against
+strings and challenge data.
+</p>
+
+<a
+href="https://regex101.com/"
+target="_blank">
+
+Open Regex101 →
+
+</a>
+
+</div>
+
+
+<!-- URL -->
+
+<div class="tool">
+
+<div class="tool-icon">
+URL
+</div>
+
+<h3>
+URL Decoder</h3>
+
+<p>
+Decode percent encoded URLs and inspect
+URL components.
+</p>
+
+<a
+href="https://www.urlencoder.org/"
+target="_blank">
+
+Open URL Tool →
+
+</a>
+
+</div>
+
+</div>
+
+
+
+<!-- ========================= -->
+<!-- ENCODING -->
+<!-- ========================= -->
+
+<div id="encoding" class="section-title">
+
+<small>03 / ENCODING & DECODING</small>
+
+<h2>
+Encoding Tools
+</h2>
+
+</div>
+
+
+<div class="tools-grid">
+
+
+<div class="tool">
+
+<div class="tool-icon">
+64
+</div>
+
+<h3>
+Base64
+</h3>
+
+<p>
+Encode and decode Base64 strings.
+Commonly found in web challenges,
+files and CTF flags.
+</p>
+
+<a
+href="https://www.base64decode.org/"
+target="_blank">
+
+Base64 Decoder →
+
+</a>
+
+</div>
+
+
+<div class="tool">
+
+<div class="tool-icon">
+16
+</div>
+
+<h3>
+Hexadecimal
+</h3>
+
+<p>
+Convert hexadecimal values to ASCII
+and inspect hexadecimal encoded data.
+</p>
+
+<a
+href="https://www.rapidtables.com/convert/number/hex-to-ascii.html"
+target="_blank">
+
+Hex → ASCII →
+
+</a>
+
+</div>
+
+
+<div class="tool">
+
+<div class="tool-icon">
+01
+</div>
+
+<h3>
+Binary</h3>
+
+<p>
+Convert binary representations into
+ASCII text.
+</p>
+
+<a
+href="https://www.rapidtables.com/convert/number/binary-to-ascii.html"
+target="_blank">
+
+Binary → ASCII →
+
+</a>
+
+</div>
+
+
+<div class="tool">
+
+<div class="tool-icon">
+123
+</div>
+
+<h3>
+Number Converter
+</h3>
+
+<p>
+Convert between binary, decimal,
+hexadecimal and octal.
+</p>
+
+<a
+href="https://www.rapidtables.com/convert/number/index.html"
+target="_blank">
+
+Number Converter →
+
+</a>
+
+</div>
+
+
+</div>
+
+
+
+<!-- ========================= -->
+<!-- FORENSICS -->
+<!-- ========================= -->
+
+<div id="forensics" class="section-title">
+
+<small>04 / DIGITAL FORENSICS</small>
+
+<h2>
+Forensics & OSINT
+</h2>
+
+</div>
+
+
+<div class="tools-grid">
+
+
+<!-- EXIF -->
+
+<div class="tool">
+
+<div class="tool-icon">
+IMG
+</div>
+
+<h3>
+Metadata / EXIF
+</h3>
+
+<p>
+Inspect image metadata such as camera,
+software, timestamps and other available
+EXIF information.
+</p>
+
+<a
+href="https://exif.tools/"
+target="_blank">
+
+Open EXIF Tool →
+
+</a>
+
+</div>
+
+
+<!-- APERISOLVE -->
+
+<div class="tool">
+
+<div class="tool-icon">
+🔎
+</div>
+
+<h3>
+Aperi'Solve
+</h3>
+
+<p>
+Online image analysis platform useful
+for steganography and CTF image challenges.
+</p>
+
+<a
+href="https://www.aperisolve.com/"
+target="_blank">
+
+Open Aperi'Solve →
+
+</a>
+
+</div>
+
+
+<!-- FILE SIGNATURE -->
+
+<div class="tool">
+
+<div class="tool-icon">
+FILE
+</div>
+
+<h3>
+File Signatures
+</h3>
+
+<p>
+Look up file signatures and magic bytes
+to identify unknown file types.
+</p>
+
+<a
+href="https://www.filesignatures.net/"
+target="_blank">
+
+File Signatures →
+
+</a>
+
+</div>
+
+
+<!-- OSINT -->
+
+<div class="tool">
+
+<div class="tool-icon">
+OSINT
+</div>
+
+<h3>
+OSINT Framework
+</h3>
+
+<p>
+A directory of open-source intelligence
+resources organized by investigation type.
+</p>
+
+<a
+href="https://osintframework.com/"
+target="_blank">
+
+OSINT Framework →
+
+</a>
+
+</div>
+
+
+</div>
+
+
+
+<!-- ========================= -->
+<!-- NETWORK -->
+<!-- ========================= -->
+
+<div class="section-title">
+
+<small>05 / NETWORK & WEB</small>
+
+<h2>
+Network Tools
+</h2>
+
+</div>
+
+
+<div class="tools-grid">
+
+
+<div class="tool">
+
+<div class="tool-icon">
+IP
+</div>
+
+<h3>
+IP Information
+</h3>
+
+<p>
+Look up general information associated
+with an IP address.
+</p>
+
+<a
+href="https://ipinfo.io/"
+target="_blank">
+
+Open IPinfo →
+
+</a>
+
+</div>
+
+
+<div class="tool">
+
+<div class="tool-icon">
+DNS
+</div>
+
+<h3>
+DNS Lookup
+</h3>
+
+<p>
+Inspect DNS records including A, AAAA,
+MX, TXT and other records.
+</p>
+
+<a
+href="https://dnsdumpster.com/"
+target="_blank">
+
+DNSDumpster →
+
+</a>
+
+</div>
+
+
+<div class="tool">
+
+<div class="tool-icon">
+HTTP
+</div>
+
+<h3>
+HTTP Status Codes
+</h3>
+
+<p>
+Quick reference for HTTP response codes
+used in web security challenges.
+</p>
+
+<a
+href="https://http.cat/"
+target="_blank">
+
+HTTP Cats →
+
+</a>
+
+</div>
+
+
+<div class="tool">
+
+<div class="tool-icon">
+CTF
+</div>
+
+<h3>
+CTF 101
+</h3>
+
+<p>
+Learning resources covering common
+Capture The Flag categories and techniques.
+</p>
+
+<a
+href="https://ctf101.org/"
+target="_blank">
+
+CTF 101 →
+
+</a>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+<!-- FOOTER -->
+
+<footer>
+
+HackLab Toolkit • Built for Hackathons & CTF Practice
+
+<br><br>
+
+Use external tools only on systems and data
+you are authorized to analyze.
+
+</footer>
+
+
+
+<script>
+
+/* =========================================
+   UNIVERSAL ANALYZER
+========================================= */
+
+
+function analyze() {
+
+    const input =
+        document.getElementById("input").value.trim();
+
+    const results =
+        document.getElementById("results");
+
+    const decodedBox =
+        document.getElementById("decodedBox");
+
+    const decodedOutput =
+        document.getElementById("decodedOutput");
+
+
+    results.innerHTML = "";
+
+    decodedBox.style.display = "none";
+
+
+    if (!input) {
+
+        addResult(
+            "INPUT",
+            false,
+            "No input provided."
+        );
+
+        return;
+    }
+
+
+    const compact =
+        input.replace(/\s/g, "");
+
+
+    /* HEX */
+
+    const isHex =
+        /^(0x)?[0-9a-fA-F]+$/.test(compact)
+        &&
+        compact.length % 2 === 0;
+
+
+    /* BINARY */
+
+    const isBinary =
+        /^(?:[01]{8}\s*)+$/.test(input);
+
+
+    /* DECIMAL */
+
+    const isDecimal =
+        /^\d+(?:\s+\d+)*$/.test(input);
+
+
+    /* BASE64 */
+
+    const base64Decoded =
+        tryBase64(input);
+
+
+    const isBase64 =
+        base64Decoded !== null;
+
+
+    /* URL ENCODING */
+
+    const isURL =
+        /%[0-9a-fA-F]{2}/.test(input);
+
+
+    /* JWT */
+
+    const isJWT =
+        /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/
+        .test(input);
+
+
+    /* HASHES */
+
+    const isMD5 =
+        /^[a-fA-F0-9]{32}$/.test(compact);
+
+
+    const isSHA1 =
+        /^[a-fA-F0-9]{40}$/.test(compact);
+
+
+    const isSHA256 =
+        /^[a-fA-F0-9]{64}$/.test(compact);
+
+
+    /* DISPLAY */
+
+    addResult(
+        "HEX",
+        isHex,
+        "Hexadecimal"
+    );
+
+
+    addResult(
+        "BINARY",
+        isBinary,
+        "8-bit binary"
+    );
+
+
+    addResult(
+        "DECIMAL",
+        isDecimal,
+        "Decimal numbers"
+    );
+
+
+    addResult(
+        "BASE64",
+        isBase64,
+        "Base64 structure"
+    );
+
+
+    addResult(
+        "URL ENCODED",
+        isURL,
+        "Percent encoding"
+    );
+
+
+    addResult(
+        "JWT",
+        isJWT,
+        "JSON Web Token"
+    );
+
+
+    addResult(
+        "MD5",
+        isMD5,
+        "32 hexadecimal characters"
+    );
+
+
+    addResult(
+        "SHA-1",
+        isSHA1,
+        "40 hexadecimal characters"
+    );
+
+
+    addResult(
+        "SHA-256",
+        isSHA256,
+        "64 hexadecimal characters"
+    );
+
+
+    /* =====================================
+       AUTOMATIC DECODING
+    ===================================== */
+
+    let output = null;
+    let method = "";
+
+
+    /* HEX */
+
+    if (isHex) {
+
+        try {
+
+            let hex =
+                compact.replace(/^0x/, "");
+
+            let bytes = [];
+
+            for (
+                let i = 0;
+                i < hex.length;
+                i += 2
+            ) {
+
+                bytes.push(
+                    parseInt(
+                        hex.substring(i, i + 2),
+                        16
+                    )
+                );
+
+            }
+
+            output =
+                new TextDecoder()
+                .decode(
+                    new Uint8Array(bytes)
+                );
+
+            method =
+                "HEX → TEXT";
+
+        } catch (error) {}
+
+    }
+
+
+    /* BASE64 */
+
+    else if (isBase64) {
+
+        output = base64Decoded;
+
+        method =
+            "BASE64 → TEXT";
+
+    }
+
+
+    /* BINARY */
+
+    else if (isBinary) {
+
+        try {
+
+            output =
+                input
+                .trim()
+                .split(/\s+/)
+                .map(
+                    x =>
+                        String.fromCharCode(
+                            parseInt(x, 2)
+                        )
+                )
+                .join("");
+
+            method =
+                "BINARY → TEXT";
+
+        } catch (error) {}
+
+    }
+
+
+    /* DECIMAL */
+
+    else if (isDecimal) {
+
+        try {
+
+            const numbers =
+                input
+                .trim()
+                .split(/\s+/)
+                .map(Number);
+
+
+            if (
+                numbers.every(
+                    n => n >= 0 && n <= 255
+                )
+            ) {
+
+                output =
+                    String.fromCharCode(
+                        ...numbers
+                    );
+
+                method =
+                    "DECIMAL → TEXT";
+
+            }
+
+        } catch (error) {}
+
+    }
+
+
+    /* URL */
+
+    else if (isURL) {
+
+        try {
+
+            output =
+                decodeURIComponent(input);
+
+            method =
+                "URL DECODE";
+
+        } catch (error) {}
+
+    }
+
+
+    /* SHOW OUTPUT */
+
+    if (
+        output !== null &&
+        output !== input &&
+        output.length > 0
+    ) {
+
+        decodedBox.style.display =
+            "block";
+
+        decodedOutput.textContent =
+            method +
+            "\n\n" +
+            output;
+
+    }
+
+}
+
+
+/* =========================================
+   RESULT CARD
+========================================= */
+
+
+function addResult(
+    name,
+    detected,
+    description
+) {
+
+    const results =
+        document.getElementById("results");
+
+
+    const div =
+        document.createElement("div");
+
+
+    div.className =
+        "result";
+
+
+    div.innerHTML = `
+
+        <h3>${name}</h3>
+
+        <div class="
+            status
+            ${detected
+                ? "detected"
+                : "not-detected"}
+        ">
+
+            ${detected
+                ? "✓ LIKELY"
+                : "— Not detected"}
+
+        </div>
+
+        <small
+            style="
+                display:block;
+                margin-top:6px;
+                color:var(--muted);
+            "
+        >
+
+            ${description}
+
+        </small>
+
+    `;
+
+
+    results.appendChild(div);
+
+}
+
+
+/* =========================================
+   BASE64 DETECTOR
+========================================= */
+
+
+function tryBase64(value) {
+
+    try {
+
+        const clean =
+            value.replace(/\s/g, "");
+
+
+        if (
+            !/^[A-Za-z0-9+/]+={0,2}$/
+                .test(clean)
+        ) {
+
+            return null;
+
+        }
+
+
+        if (
+            clean.length % 4 !== 0
+        ) {
+
+            return null;
+
+        }
+
+
+        const binary =
+            atob(clean);
+
+
+        let result = "";
+
+
+        for (
+            let i = 0;
+            i < binary.length;
+            i++
+        ) {
+
+            result +=
+                String.fromCharCode(
+                    binary.charCodeAt(i)
+                );
+
+        }
+
+
+        return result;
+
+    }
+
+    catch (error) {
+
+        return null;
+
+    }
+
+}
+
+
+/* =========================================
+   CLEAR
+========================================= */
+
+
+function clearInput() {
+
+    document.getElementById("input").value =
+        "";
+
+    document.getElementById("results")
+        .innerHTML = "";
+
+    document.getElementById("decodedBox")
+        .style.display = "none";
+
+}
+
+
+/* =========================================
+   ENTER SHORTCUT
+========================================= */
+
+
+document
+    .getElementById("input")
+    .addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.ctrlKey &&
+                event.key === "Enter"
+            ) {
+
+                analyze();
+
+            }
+
+        }
+    );
+
+</script>
+
+</body>
+</html>

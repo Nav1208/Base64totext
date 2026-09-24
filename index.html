@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="HackLab CTF and Hackathon Toolkit">
+<title>HackLab — CTF Toolkit</title>
+<style>
+:root{
+  --bg:#05070a;--panel:#0b1118;--card:#0f1720;--line:#1c2a35;
+  --text:#e8f7ff;--muted:#8195a3;--green:#00f5a0;--cyan:#00d9ff;
+  --danger:#ff5570;--yellow:#ffd166;--shadow:0 18px 50px rgba(0,0,0,.28)
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:
+ radial-gradient(circle at 10% 0%,rgba(0,245,160,.08),transparent 28rem),
+ radial-gradient(circle at 90% 5%,rgba(0,217,255,.07),transparent 28rem),
+ var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}
+a{color:inherit}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+nav{position:sticky;top:0;z-index:20;background:rgba(5,7,10,.86);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.nav{max-width:1180px;margin:auto;padding:15px 20px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{font-weight:800;letter-spacing:-.03em}.brand i{color:var(--green);font-style:normal}
+.navlinks{display:flex;gap:20px;flex-wrap:wrap}.navlinks a{text-decoration:none;color:var(--muted);font-size:13px}.navlinks a:hover{color:var(--green)}
+.wrap{max-width:1180px;margin:auto;padding:0 20px}
+.hero{padding:88px 0 55px;text-align:center}.badge{display:inline-block;border:1px solid #18523f;background:#071a14;color:var(--green);border-radius:999px;padding:8px 12px;font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+h1{font-size:clamp(44px,8vw,82px);line-height:.95;margin:18px 0 20px;letter-spacing:-.065em}.accent{color:var(--green)}
+.hero p{max-width:720px;margin:auto;color:var(--muted);line-height:1.7}
+.section{padding:28px 0}.sectionhead{display:flex;justify-content:space-between;gap:15px;align-items:end;margin-bottom:16px}.kicker{font-size:11px;color:var(--green);letter-spacing:.12em;text-transform:uppercase}.section h2{font-size:24px;margin:4px 0 0}
+.panel{background:rgba(11,17,24,.9);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:20px}
+textarea,input,select{width:100%;background:#060b10;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:12px 13px;outline:none;font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}
+textarea{min-height:150px;resize:vertical}textarea:focus,input:focus,select:focus{border-color:var(--green)}
+.row{display:flex;gap:9px;flex-wrap:wrap}.btn{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:9px;padding:11px 14px;font-weight:700;cursor:pointer}.btn:hover{border-color:var(--green)}.primary{background:#063c2d;border-color:var(--green);color:var(--green)}
+.results{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:9px;margin-top:14px}.result{padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--card)}.result strong{display:block;font-size:12px}.result small{color:var(--muted);line-height:1.45}.yes{color:var(--green)}.no{color:#657784}
+.output{margin-top:14px;border:1px solid var(--line);border-radius:10px;background:#060b10;padding:13px;display:none}.output h3{font-size:12px;color:var(--green);margin:0 0 8px}.output pre{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--text);font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}.tool{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:17px;display:flex;flex-direction:column;min-width:0}.tool:hover{border-color:#2d4858}.icon{width:38px;height:38px;border-radius:9px;border:1px solid var(--line);display:grid;place-items:center;color:var(--green);font-size:12px;font-weight:800;margin-bottom:12px}.tool h3{margin:0 0 7px;font-size:15px}.tool p{margin:0;color:var(--muted);font-size:13px;line-height:1.55;flex:1}.tool a{display:inline-block;margin-top:14px;color:var(--green);text-decoration:none;font-size:12px;font-weight:700}.tool a:hover{text-decoration:underline}
+.xorgrid{display:grid;grid-template-columns:1.4fr .8fr;gap:14px}.field{margin-bottom:10px}.field label{display:block;color:var(--muted);font-size:11px;margin-bottom:6px}.xorresult{margin-top:10px;padding:13px;border:1px solid var(--line);border-radius:10px;background:#060b10;white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 ui-monospace}
+.note{color:var(--muted);font-size:11px;line-height:1.5;margin-top:10px}
+footer{border-top:1px solid var(--line);margin-top:50px;padding:28px 20px;text-align:center;color:var(--muted);font-size:11px}
+@media(max-width:700px){.navlinks{display:none}.hero{padding-top:65px}.xorgrid{grid-template-columns:1fr}.sectionhead{align-items:start;flex-direction:column}}
+</style>
+</head>
+<body>
+<nav><div class="nav">
+  <div class="brand mono">Hack<span style="color:var(--cyan)">Lab</span><i>_</i></div>
+  <div class="navlinks">
+    <a href="#analyzer">Analyzer</a><a href="#crypto">Crypto</a><a href="#web">Web</a>
+    <a href="#general">General</a><a href="#reverse">Reverse</a><a href="#forensics">Forensics</a><a href="#xor">XOR</a>
+  </div>
+</div></nav>
+
+<main class="wrap">
+<section class="hero">
+  <span class="badge mono">CTF • HACKATHON • SECURITY TOOLKIT</span>
+  <h1>Hack<span class="accent">Lab</span><span class="mono accent">_</span></h1>
+  <p>A practical launchpad for common CTF categories. Analyze challenge text, decode common formats, work with XOR, and jump directly to trusted external tools.</p>
+</section>
+
+<section id="analyzer" class="section">
+<div class="sectionhead"><div><div class="kicker mono">01 / Universal Analyzer</div><h2>What is this string?</h2></div><span class="mono" style="color:var(--muted);font-size:11px">local analysis • no upload</span></div>
+<div class="panel">
+<textarea id="analyzeInput" placeholder="Paste challenge data here...
+
+Examples:
+48656c6c6f
+SGVsbG8=
+01001000 01101001
+5d41402abc4b2a76b9719d911017c592
+eyJhbGciOiJIUzI1NiJ9..."></textarea>
+<div class="row" style="margin-top:10px"><button class="btn primary" id="analyzeBtn">Analyze</button><button class="btn" id="clearBtn">Clear</button></div>
+<div id="detectResults" class="results" aria-live="polite"></div>
+<div id="analyzeOutput" class="output"><h3>Possible decoding</h3><pre id="analyzeOutputText"></pre></div>
+<div class="note">Detection is heuristic. A 32-character hexadecimal string can be an MD5 hash, but it can also simply be hexadecimal data. Hashes are identified, not “decoded.”</div>
+</div>
+</section>
+
+<section id="crypto" class="section">
+<div class="sectionhead"><div><div class="kicker mono">02 / Cryptography</div><h2>Crypto Toolkit</h2></div></div>
+<div class="grid">
+<article class="tool"><div class="icon">⚗</div><h3>CyberChef</h3><p>Transform, encode, decode, hash, compress, extract and analyze data.</p><a href="https://gchq.github.io/CyberChef/" target="_blank" rel="noopener noreferrer">Open CyberChef ↗</a></article>
+<article class="tool"><div class="icon">#</div><h3>Hash Identifier</h3><p>Identify likely hash families from a supplied hash string.</p><a href="https://hashes.com/en/tools/hash_identifier" target="_blank" rel="noopener noreferrer">Hash Identifier ↗</a></article>
+<article class="tool"><div class="icon">64</div><h3>Base64</h3><p>Encode and decode Base64 data.</p><a href="https://www.base64decode.org/" target="_blank" rel="noopener noreferrer">Base64 Decoder ↗</a></article>
+<article class="tool"><div class="icon">16</div><h3>Hex / ASCII</h3><p>Convert hexadecimal data to readable ASCII text.</p><a href="https://www.rapidtables.com/convert/number/hex-to-ascii.html" target="_blank" rel="noopener noreferrer">Hex → ASCII ↗</a></article>
+<article class="tool"><div class="icon">01</div><h3>Binary / ASCII</h3><p>Convert binary byte sequences to text.</p><a href="https://www.rapidtables.com/convert/number/binary-to-ascii.html" target="_blank" rel="noopener noreferrer">Binary → ASCII ↗</a></article>
+<article class="tool"><div class="icon">JWT</div><h3>JWT</h3><p>Inspect JWT header and payload structure.</p><a href="https://jwt.io/" target="_blank" rel="noopener noreferrer">Open JWT.io ↗</a></article>
+<article class="tool"><div class="icon">ROT</div><h3>ROT / Caesar</h3><p>Reference and tools for classical substitution ciphers.</p><a href="https://www.dcode.fr/" target="_blank" rel="noopener noreferrer">Open dCode ↗</a></article>
+</div>
+</section>
+
+<section id="web" class="section">
+<div class="sectionhead"><div><div class="kicker mono">03 / Web Exploitation</div><h2>Web Security Utilities</h2></div></div>
+<div class="grid">
+<article class="tool"><div class="icon">URL</div><h3>URL Encoder</h3><p>Encode or decode percent-encoded URL data.</p><a href="https://www.urlencoder.org/" target="_blank" rel="noopener noreferrer">URL Tool ↗</a></article>
+<article class="tool"><div class="icon">.*</div><h3>Regex</h3><p>Build and test regular expressions.</p><a href="https://regex101.com/" target="_blank" rel="noopener noreferrer">Open Regex101 ↗</a></article>
+<article class="tool"><div class="icon">HTTP</div><h3>HTTP</h3><p>Inspect HTTP concepts and response codes.</p><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status" target="_blank" rel="noopener noreferrer">HTTP Status Reference ↗</a></article>
+<article class="tool"><div class="icon">DNS</div><h3>DNS</h3><p>Explore DNS records and domain information.</p><a href="https://dnsdumpster.com/" target="_blank" rel="noopener noreferrer">Open DNSDumpster ↗</a></article>
+<article class="tool"><div class="icon">IP</div><h3>IP</h3><p>Inspect public IP and ASN information.</p><a href="https://ipinfo.io/" target="_blank" rel="noopener noreferrer">Open IPinfo ↗</a></article>
+</div>
+</section>
+
+<section id="general" class="section">
+<div class="sectionhead"><div><div class="kicker mono">04 / General Skills</div><h2>Everyday CTF Utilities</h2></div></div>
+<div class="grid">
+<article class="tool"><div class="icon">⚙</div><h3>CyberChef</h3><p>A general-purpose workbench for many CTF transformations.</p><a href="https://gchq.github.io/CyberChef/" target="_blank" rel="noopener noreferrer">Open CyberChef ↗</a></article>
+<article class="tool"><div class="icon">123</div><h3>Number Bases</h3><p>Convert binary, decimal, hexadecimal and octal values.</p><a href="https://www.rapidtables.com/convert/number/index.html" target="_blank" rel="noopener noreferrer">Number Converter ↗</a></article>
+<article class="tool"><div class="icon">ASCII</div><h3>ASCII Table</h3><p>Quick reference for ASCII character values.</p><a href="https://www.ascii-code.com/" target="_blank" rel="noopener noreferrer">ASCII Reference ↗</a></article>
+<article class="tool"><div class="icon">REG</div><h3>Regex</h3><p>Pattern matching and extraction for challenge text.</p><a href="https://regex101.com/" target="_blank" rel="noopener noreferrer">Regex101 ↗</a></article>
+<article class="tool"><div class="icon">OSINT</div><h3>OSINT Framework</h3><p>Directory of open-source intelligence resources.</p><a href="https://osintframework.com/" target="_blank" rel="noopener noreferrer">OSINT Framework ↗</a></article>
+<article class="tool"><div class="icon">CTF</div><h3>CTF 101</h3><p>Learning references for common CTF challenge categories.</p><a href="https://ctf101.org/" target="_blank" rel="noopener noreferrer">CTF 101 ↗</a></article>
+</div>
+</section>
+
+<section id="reverse" class="section">
+<div class="sectionhead"><div><div class="kicker mono">05 / Reverse Engineering</div><h2>RE Resources</h2></div></div>
+<div class="grid">
+<article class="tool"><div class="icon">GH</div><h3>Ghidra</h3><p>Free reverse-engineering framework for examining compiled programs.</p><a href="https://ghidra-sre.org/" target="_blank" rel="noopener noreferrer">Ghidra ↗</a></article>
+<article class="tool"><div class="icon">DIE</div><h3>Detect It Easy</h3><p>Identify file types, packers and compiler information.</p><a href="https://github.com/horsicq/Detect-It-Easy" target="_blank" rel="noopener noreferrer">Detect It Easy ↗</a></article>
+<article class="tool"><div class="icon">STR</div><h3>Strings</h3><p>Reference for extracting readable strings from binaries.</p><a href="https://man7.org/linux/man-pages/man1/strings.1.html" target="_blank" rel="noopener noreferrer">strings reference ↗</a></article>
+<article class="tool"><div class="icon">ELF</div><h3>ELF</h3><p>Reference for Linux ELF executable structure.</p><a href="https://refspecs.linuxfoundation.org/elf/elf.pdf" target="_blank" rel="noopener noreferrer">ELF Specification ↗</a></article>
+</div>
+</section>
+
+<section id="forensics" class="section">
+<div class="sectionhead"><div><div class="kicker mono">06 / Forensics</div><h2>Digital Forensics</h2></div></div>
+<div class="grid">
+<article class="tool"><div class="icon">EXIF</div><h3>Metadata / EXIF</h3><p>Inspect available image metadata and EXIF information.</p><a href="https://exif.tools/" target="_blank" rel="noopener noreferrer">EXIF.tools ↗</a></article>
+<article class="tool"><div class="icon">IMG</div><h3>Aperi&#x27;Solve</h3><p>Image analysis and steganography-oriented CTF utility.</p><a href="https://www.aperisolve.com/" target="_blank" rel="noopener noreferrer">Aperi&#x27;Solve ↗</a></article>
+<article class="tool"><div class="icon">FILE</div><h3>File Signatures</h3><p>Look up magic bytes and common file signatures.</p><a href="https://www.filesignatures.net/" target="_blank" rel="noopener noreferrer">File Signatures ↗</a></article>
+<article class="tool"><div class="icon">PCAP</div><h3>Wireshark</h3><p>Analyze packet captures and network traffic locally.</p><a href="https://www.wireshark.org/" target="_blank" rel="noopener noreferrer">Wireshark ↗</a></article>
+<article class="tool"><div class="icon">BIN</div><h3>Binwalk</h3><p>Identify and extract embedded data from files.</p><a href="https://github.com/ReFirmLabs/binwalk" target="_blank" rel="noopener noreferrer">Binwalk ↗</a></article>
+<article class="tool"><div class="icon">VOL</div><h3>Volatility</h3><p>Memory-forensics framework for supported memory images.</p><a href="https://volatilityfoundation.org/" target="_blank" rel="noopener noreferrer">Volatility ↗</a></article>
+</div>
+</section>
+
+<section id="xor" class="section">
+<div class="sectionhead"><div><div class="kicker mono">07 / XOR Lab</div><h2>Single-Byte XOR Decoder</h2></div></div>
+<div class="panel xorgrid">
+<div>
+<div class="field"><label for="xorInput">Ciphertext</label><textarea id="xorInput" style="min-height:130px" placeholder="Example hex: 1b070f0f0a"></textarea></div>
+<div class="row"><button class="btn primary" id="xorBtn">Decrypt XOR</button><button class="btn" id="bruteBtn">Brute Force 0–255</button></div>
+<div id="xorResult" class="xorresult" aria-live="polite">Result will appear here.</div>
+<div class="note">For “Hex” mode, enter byte pairs such as <span class="mono">1b070f0f0a</span> or <span class="mono">1b 07 0f 0f 0a</span>. Brute force ranks keys using a simple printable/English heuristic; it does not guarantee the correct key.</div>
+</div>
+<div>
+<div class="field"><label for="xorFormat">Input format</label><select id="xorFormat"><option value="hex">Hex bytes</option><option value="text">Plain text bytes</option></select></div>
+<div class="field"><label for="xorKey">Key (0–255)</label><input id="xorKey" type="number" min="0" max="255" value="72"></div>
+<div style="border:1px solid var(--line);border-radius:10px;padding:12px;color:var(--muted);font-size:12px;line-height:1.55">
+<strong style="color:var(--text)">Tip</strong><br>
+If a challenge says “single-byte XOR,” try the brute-force button first. Then inspect the readable candidates and test the most plausible key.
+</div>
+</div>
+</div>
+</section>
+</main>
+
+<footer>HackLab Toolkit • Built for authorized CTFs, labs and hackathons.</footer>
+
+<script>
+function tool(icon,title,desc,url,label){
+  return '<article class="tool"><div class="icon">'+icon+'</div><h3>'+title+'</h3><p>'+desc+'</p><a href="'+url+'" target="_blank" rel="noopener noreferrer">'+label+' ↗</a></article>';
+}
+
+const $ = id => document.getElementById(id);
+
+function addDetection(name, yes, desc){
+  const d=document.createElement("div");
+  d.className="result";
+  d.innerHTML="<strong>"+escapeHtml(name)+"</strong><div class='"+(yes?"yes":"no")+"' style='font-size:12px;margin:5px 0'>"+(yes?"✓ LIKELY":"— Not detected")+"</div><small>"+escapeHtml(desc)+"</small>";
+  $("detectResults").appendChild(d);
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+function decodeBase64(s){
+  try{
+    const clean=s.replace(/\s/g,"");
+    if(!/^[A-Za-z0-9+/]*={0,2}$/.test(clean) || clean.length===0 || clean.length%4!==0) return null;
+    const bin=atob(clean);
+    const bytes=Uint8Array.from(bin,c=>c.charCodeAt(0));
+    return new TextDecoder("utf-8",{fatal:true}).decode(bytes);
+  }catch(e){return null}
+}
+
+function decodeHex(s){
+  try{
+    const clean=s.replace(/^0x/i,"").replace(/\s/g,"");
+    if(!/^[0-9a-fA-F]+$/.test(clean)||clean.length%2) return null;
+    const bytes=new Uint8Array(clean.length/2);
+    for(let i=0;i<bytes.length;i++) bytes[i]=parseInt(clean.slice(i*2,i*2+2),16);
+    return new TextDecoder("utf-8",{fatal:true}).decode(bytes);
+  }catch(e){return null}
+}
+
+function decodeBinary(s){
+  try{
+    const groups=s.trim().split(/\s+/);
+    if(!groups.length || !groups.every(x=>/^[01]{8}$/.test(x))) return null;
+    return String.fromCharCode(...groups.map(x=>parseInt(x,2)));
+  }catch(e){return null}
+}
+
+function decodeDecimal(s){
+  try{
+    const nums=s.trim().split(/\s+/).map(Number);
+    if(!nums.length || nums.some(n=>!Number.isInteger(n)||n<0||n>255)) return null;
+    return String.fromCharCode(...nums);
+  }catch(e){return null}
+}
+
+function analyze(){
+  const s=$("analyzeInput").value.trim();
+  $("detectResults").innerHTML="";
+  $("analyzeOutput").style.display="none";
+  if(!s){addDetection("INPUT",false,"Paste challenge data first.");return}
+  const compact=s.replace(/\s/g,"");
+  const hex=/^(?:0x)?[0-9a-fA-F]+$/.test(compact)&&compact.replace(/^0x/i,"").length%2===0;
+  const binary=/^(?:[01]{8}\s*)+$/.test(s);
+  const decimal=/^\d+(?:\s+\d+)*$/.test(s);
+  const b64=decodeBase64(s);
+  const url=/(?:%[0-9a-fA-F]{2})+/.test(s);
+  const jwt=/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(s);
+  const md5=/^[0-9a-fA-F]{32}$/.test(compact);
+  const sha1=/^[0-9a-fA-F]{40}$/.test(compact);
+  const sha256=/^[0-9a-fA-F]{64}$/.test(compact);
+
+  addDetection("Hexadecimal",hex,"Even-length hexadecimal bytes.");
+  addDetection("Binary",binary,"Space-separated 8-bit binary values.");
+  addDetection("Decimal bytes",decimal,"Space-separated byte values from 0–255.");
+  addDetection("Base64",!!b64,"Valid Base64 that decodes as UTF-8.");
+  addDetection("URL encoded",url,"Contains percent-encoded byte sequences.");
+  addDetection("JWT",jwt,"Three Base64URL-like segments separated by dots.");
+  addDetection("MD5",md5,"32 hexadecimal characters; could be MD5 or arbitrary hex.");
+  addDetection("SHA-1",sha1,"40 hexadecimal characters; could be SHA-1 or arbitrary hex.");
+  addDetection("SHA-256",sha256,"64 hexadecimal characters; could be SHA-256 or arbitrary hex.");
+
+  let out=null,method="";
+  if(hex){out=decodeHex(s);method="HEX → TEXT"}
+  else if(binary){out=decodeBinary(s);method="BINARY → TEXT"}
+  else if(decimal){out=decodeDecimal(s);method="DECIMAL BYTES → TEXT"}
+  else if(b64){out=b64;method="BASE64 → TEXT"}
+  else if(url){try{out=decodeURIComponent(s);method="URL → TEXT"}catch(e){}}
+
+  if(out!==null && out!==s && out.length){
+    $("analyzeOutput").style.display="block";
+    $("analyzeOutputText").textContent=method+"\n\n"+out;
+  }
+}
+
+$("analyzeBtn").addEventListener("click",analyze);
+$("clearBtn").addEventListener("click",()=>{$("analyzeInput").value="";$("detectResults").innerHTML="";$("analyzeOutput").style.display="none";$("analyzeInput").focus()});
+$("analyzeInput").addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key==="Enter")analyze()});
+
+function getXorBytes(){
+  const value=$("xorInput").value.trim();
+  if(!value) throw new Error("Enter ciphertext first.");
+  if($("xorFormat").value==="text") return new TextEncoder().encode(value);
+  const clean=value.replace(/\s+/g,"").replace(/^0x/i,"");
+  if(!/^[0-9a-fA-F]+$/.test(clean)||clean.length%2) throw new Error("Hex must contain only 0–9/A–F and have an even number of characters.");
+  const bytes=new Uint8Array(clean.length/2);
+  for(let i=0;i<bytes.length;i++)bytes[i]=parseInt(clean.slice(i*2,i*2+2),16);
+  return bytes;
+}
+
+function xorDecode(bytes,key){
+  const out=new Uint8Array(bytes.length);
+  for(let i=0;i<bytes.length;i++)out[i]=bytes[i]^key;
+  return out;
+}
+
+function byteText(bytes){
+  return Array.from(bytes,x=>x>=32&&x<=126?String.fromCharCode(x):x===9?"\\t":x===10?"\\n":x===13?"\\r":".").join("");
+}
+
+$("xorBtn").addEventListener("click",()=>{
+  try{
+    const bytes=getXorBytes();
+    const key=Number($("xorKey").value);
+    if(!Number.isInteger(key)||key<0||key>255)throw new Error("Key must be an integer from 0 to 255.");
+    const out=xorDecode(bytes,key);
+    $("xorResult").textContent="Key: "+key+" (0x"+key.toString(16).padStart(2,"0").toUpperCase()+")\n\n"+byteText(out);
+  }catch(e){$("xorResult").textContent="Error: "+e.message}
+});
+
+$("bruteBtn").addEventListener("click",()=>{
+  try{
+    const bytes=getXorBytes();
+    if(bytes.length>4096)throw new Error("For browser safety, brute force is limited to 4096 bytes.");
+    const candidates=[];
+    for(let key=0;key<256;key++){
+      const out=xorDecode(bytes,key);
+      let score=0;
+      for(const b of out){
+        if(b===9||b===10||b===13)score+=1;
+        else if(b>=32&&b<=126)score+=2;
+        else score-=5;
+      }
+      const text=byteText(out);
+      const words=(text.match(/\b(the|this|flag|ctf|key|you|is|a|of|to|in)\b/gi)||[]).length;
+      score+=words*8;
+      candidates.push({key,score,text});
+    }
+    candidates.sort((a,b)=>b.score-a.score);
+    $("xorResult").textContent="Top candidates:\n\n"+candidates.slice(0,12).map((x,i)=>
+      (i+1)+". Key "+x.key+" (0x"+x.key.toString(16).padStart(2,"0").toUpperCase()+")  score="+x.score+"\n   "+x.text
+    ).join("\n\n");
+  }catch(e){$("xorResult").textContent="Error: "+e.message}
+});
+</script>
+</body>
+</html>
