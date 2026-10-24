@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ORBITAL // Mission Uplink</title>
+  <style>
+    :root{--bg:#06100f;--panel:#091817;--line:#1d5e57;--cyan:#5de7ff;--mint:#7dffb2;--dim:#7da9a0;--alert:#ffb76b}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 50% -20%,#123330 0,#06100f 46%,#030807 100%);color:#d9fff1;font:15px ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace}body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.12;background:repeating-linear-gradient(0deg,transparent 0 3px,#7dffb2 3px 4px)}.shell{max-width:1040px;margin:auto;padding:30px 20px 50px}.top{display:flex;justify-content:space-between;align-items:end;border-bottom:1px solid var(--line);padding-bottom:17px}.brand{color:var(--cyan);font-size:22px;font-weight:bold;letter-spacing:.15em}.tag{color:var(--dim);font-size:12px;letter-spacing:.12em}.grid{display:grid;grid-template-columns:1.12fr .88fr;gap:18px;margin-top:18px}.card{background:linear-gradient(135deg,#0b1e1cdd,#071211dd);border:1px solid var(--line);box-shadow:0 0 28px #53ffc30d;padding:20px}.eyebrow{color:var(--mint);font-size:12px;letter-spacing:.16em;margin-bottom:9px}h1{font-size:25px;font-weight:400;margin:0 0 12px;color:#effff8}p{line-height:1.55;color:#b0d4c8}.hint{border-left:2px solid var(--cyan);padding:8px 10px;background:#0b292520;color:var(--dim);font-size:13px}label{display:block;color:var(--mint);font-size:12px;letter-spacing:.1em;margin:21px 0 8px}input{width:100%;height:45px;background:#020908;border:1px solid #276e65;color:#d9fff1;padding:10px 12px;font:15px ui-monospace,Consolas,monospace;outline:none}input:focus{border-color:var(--cyan);box-shadow:0 0 0 2px #5de7ff22}button{margin-top:12px;border:1px solid #3caf96;background:#0d4b40;color:#eafff3;padding:10px 15px;font:700 14px ui-monospace,Consolas,monospace;letter-spacing:.04em;cursor:pointer}button:hover{background:#126657}#output{min-height:56px;margin-top:18px;padding:12px;border:1px dashed #2c6f66;color:var(--cyan);background:#020908;overflow-wrap:anywhere}.screen{position:relative;min-height:270px;background:#020807;border:1px solid #1d665b;padding:14px;overflow:hidden}.screen:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(#ffffff03 50%,#00000010 50%);background-size:100% 4px}canvas{display:block;width:100%;height:140px;border-bottom:1px solid #1c5049}.state{position:absolute;top:14px;right:14px;color:var(--alert);font-size:11px;letter-spacing:.12em}.readout{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:15px}.readout div{color:var(--dim);font-size:11px;letter-spacing:.08em}.readout strong{display:block;color:var(--mint);font-size:13px;margin-top:5px}.meter{height:6px;background:#17342f;margin-top:16px}.meter i{display:block;width:0;height:100%;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}.footer{margin-top:18px;color:#47756c;font-size:11px;letter-spacing:.08em}.is-decoded .screen{border-color:var(--mint);box-shadow:0 0 28px #7dffb238}.is-decoded #output{border-color:var(--mint);color:var(--mint);white-space:pre-wrap}@media(max-width:700px){.shell{padding:20px 14px}.grid{grid-template-columns:1fr}.top{align-items:start;gap:12px;flex-direction:column}.brand{font-size:19px}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="top"><div class="brand">ORBITAL // UPLINK</div><div class="tag">DEEP SPACE RELAY · v2.4.1</div></header>
+    <div class="grid">
+      <section class="card">
+        <div class="eyebrow">MISSION TERMINAL</div>
+        <h1>Transmit mission identifier</h1>
+        <p>Establish a carrier link with the Orbital relay. Diagnostic features remain restricted to authenticated signal paths.</p>
+        <p class="hint">Operator note: legacy interfaces sometimes expose useful named properties.</p>
+        <form id="missionForm">
+          <label for="mission">MISSION IDENTIFIER</label>
+          <input id="mission" autocomplete="off" maxlength="200" placeholder="Enter mission identifier">
+          <button type="submit">CONNECT MISSION</button>
+        </form>
+        <div id="output" aria-live="polite">Awaiting incoming transmission.</div>
+      </section>
+      <section class="card">
+        <div class="eyebrow">SPECTRAL DIAGNOSTICS</div>
+        <div class="screen">
+          <span id="crtState" class="state">IDLE</span><canvas id="trace" aria-label="Live carrier signal trace"></canvas>
+          <div class="meter"><i id="fill"></i></div>
+          <div class="readout"><div>CARRIER<strong id="carrier">NO CARRIER</strong></div><div>GAIN<strong id="gain">0.40</strong></div><div>DRIFT<strong id="drift">+0.0 kHz</strong></div><div>LINK<strong>ORBITAL-7</strong></div></div>
+        </div>
+      </section>
+    </div>
+    <footer class="footer">ORBITAL SYSTEMS · INTERNAL RELAY INTERFACE · DO NOT DISTRIBUTE</footer>
+  </main>
+  <script>
+    "use strict";
+
+    // Challenge configuration — replace only these two arrays for a new puzzle.
+    const encoded = [70, 34, 43, 119, 0, 71, 80, 41, 47, 119, 0, 119, 113, 29, 50, 118, 66, 89, 122, 56, 37, 34, 16, 86, 22, 41, 120, 124, 21, 107, 87, 104, 63, 33, 70, 88, 86, 4, 61, 122, 65, 107, 70, 107, 39, 97, 66, 88, 22, 38];
+    const xorKey = [37, 91, 73, 18, 114, 52];
+
+    function recoverSignal() {
+      return encoded.map((n, i) => String.fromCharCode(n ^ xorKey[i % xorKey.length])).join("");
+    }
+    function openDiagnostic() {
+      const output = document.getElementById("output");
+      document.body.classList.add("is-decoded");
+      setCrtState("DECRYPTED");
+      output.textContent = "[ORBITAL] DIAGNOSTIC CONSOLE ACTIVE\nRecovered signal: " + recoverSignal();
+    }
+    function connectMission(id) {
+      const output = document.getElementById("output");
+      if (!id) { output.textContent = "Mission identifier required."; return; }
+      if (id.length > 200) { output.textContent = "Mission identifier rejected."; return; }
+      output.innerHTML = "Signal received: " + id;
+      // The named-property check is the intended clue; the element lookup keeps
+      // the local-file version reliable in browsers that restrict named globals.
+      const debugSwitch = window.debug || document.getElementById("debug");
+      if (debugSwitch && debugSwitch.value === "true") openDiagnostic();
+      else console.log("[ORBITAL] Diagnostic mode remains locked.");
+    }
+    document.getElementById("missionForm").addEventListener("submit", e => { e.preventDefault(); connectMission(document.getElementById("mission").value); });
+    console.log("[ORBITAL] Interface initialized."); console.log("[ORBITAL] Hint: investigate named DOM properties.");
+
+    const missionField=document.getElementById("mission"),meterFill=document.getElementById("fill"),crtState=document.getElementById("crtState"),carrierCell=document.getElementById("carrier"),gainCell=document.getElementById("gain"),driftCell=document.getElementById("drift"),trace=document.getElementById("trace"),ctx=trace.getContext("2d");
+    let phase=0,energy=0,burst=0,idleTicks=0;
+    function setCrtState(label){crtState.textContent=label}
+    function fitTrace(){const r=window.devicePixelRatio||1,b=trace.getBoundingClientRect();trace.width=Math.max(1,Math.floor(b.width*r));trace.height=Math.max(1,Math.floor(b.height*r));ctx.setTransform(r,0,0,r,0,0)}
+    function drawTrace(){const b=trace.getBoundingClientRect(),w=b.width,h=b.height;ctx.clearRect(0,0,w,h);ctx.lineWidth=1.4;ctx.strokeStyle="rgba(110,255,192,.78)";ctx.shadowBlur=10;ctx.shadowColor="rgba(110,255,192,.55)";ctx.beginPath();for(let x=0;x<=w;x+=2){const t=x/w,carrier=Math.sin(t*30+phase)*7,noise=(Math.sin(t*89+phase*1.7)+Math.sin(t*151-phase*.6))*2.6,spike=burst*Math.sin(t*18+phase*2)*14,drift=Math.sin(phase*.6)*4,y=h/2+carrier*(.2+energy)+noise+drift+spike;x?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.stroke();ctx.shadowBlur=0;burst*=.93;energy*=.96;phase+=.055;requestAnimationFrame(drawTrace)}
+    function paintReadout(){const len=missionField.value.length,ratio=Math.min(len/200,1),drift=(Math.sin(phase*.4)*3.4-ratio*6.2).toFixed(1);meterFill.style.width=(ratio*100).toFixed(1)+"%";gainCell.textContent=(.4+ratio*7.6).toFixed(2);driftCell.textContent=(drift>=0?"+":"")+drift+" kHz";carrierCell.textContent=len?"LOCKED @"+len:"NO CARRIER";if(++idleTicks%24===0)phase+=.4}
+    missionField.addEventListener("input",()=>{energy=.85;burst=.6;setCrtState("RECEIVING")});document.getElementById("missionForm").addEventListener("submit",()=>{burst=1.4;energy=1.6;setCrtState("SIGNAL LOG")});window.addEventListener("resize",fitTrace);fitTrace();paintReadout();requestAnimationFrame(drawTrace);setInterval(paintReadout,60);
+  </script>
+</body>
+</html>
