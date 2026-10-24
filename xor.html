@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XOR Text Decoder</title>
+  <style>
+    :root { --blue:#1d75a8; --green:#159262; --button:#687786; --line:#ddd; --soft:#f2ecd8; --ink:#333; --muted:#666; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:#fff; color:var(--ink); font:16px Arial, Helvetica, sans-serif; }
+    header { background:#f6f5d4; }
+    .bar, main { max-width:980px; margin:auto; padding-left:18px; padding-right:18px; }
+    .bar { height:59px; display:flex; align-items:center; }
+    .mark { display:none; }
+    .brand { font-size:23px; font-weight:bold; letter-spacing:-.6px; }
+    .brand span { display:none; }
+    nav { margin-left:auto; color:#333; font-size:16px; font-weight:bold; }
+    nav::before { content:'⌕'; font-size:27px; vertical-align:-2px; margin-right:6px; }
+    main { padding-top:17px; padding-bottom:48px; }
+    .crumb { border-bottom:1px solid #ddd; color:#222; font-size:15px; margin-bottom:10px; padding-bottom:11px; }
+    .crumb span { color:#222; }
+    h1 { margin:0 0 14px; font-size:25px; font-weight:400; }
+    .lead { margin:0 0 7px; color:#333; line-height:1.5; max-width:612px; }
+    .panel { width:612px; background:var(--soft); border:0; border-radius:6px 6px 0 0; overflow:hidden; box-shadow:none; }
+    .row { padding:15px 20px 0; border-bottom:0; }
+    .row:last-child { padding-bottom:20px; }
+    label { display:block; font-size:14px; font-weight:bold; margin-bottom:8px; }
+    label small { font-weight:normal; color:var(--muted); }
+    textarea { width:100%; min-height:146px; resize:vertical; border:1px solid #ddd; border-radius:5px; padding:11px; color:#333; font:14px ui-monospace, SFMono-Regular, Consolas, monospace; line-height:1.45; background:#fff; }
+    textarea:focus { outline:2px solid #c8dded; border-color:#8eb9d4; }
+    .keyline { display:flex; gap:10px; align-items:end; }
+    .keyline > div { flex:1; }
+    input, select { height:38px; width:100%; border:1px solid #ddd; border-radius:5px; padding:8px 10px; font:14px ui-monospace, Consolas, monospace; background:white; }
+    .actions { background:var(--soft); display:flex; flex-wrap:wrap; gap:5px; align-items:center; padding-bottom:15px; }
+    button { border:0; border-radius:4px; background:var(--button); color:#fff; cursor:pointer; font-size:15px; padding:10px 13px; }
+    button:hover { filter:brightness(.92); }
+    .primary { background:var(--green); font-weight:normal; }
+    .status { margin-left:auto; font-size:13px; color:var(--muted); min-height:16px; }
+    .status.error { color:#b42318; }
+    .result { min-height:112px; margin:0; white-space:pre-wrap; overflow-wrap:anywhere; background:#fff; border:1px solid #ddd; border-radius:5px; padding:12px; font:14px ui-monospace, SFMono-Regular, Consolas, monospace; line-height:1.45; }
+    .result.empty { color:#68747e; }
+    .help { width:612px; margin-top:29px; color:#333; line-height:1.55; }
+    .help h2 { margin:0 0 8px; color:#333; font-size:21px; font-weight:400; }
+    code { background:#eef2f5; border-radius:3px; padding:2px 4px; color:#263d50; }
+    @media (max-width:650px) { .bar, main { padding-left:16px; padding-right:16px; } nav { font-size:0; } nav::before { margin:0; } .panel, .help { width:100%; } .row { padding-left:16px; padding-right:16px; } .keyline { display:block; } .keyline > div { margin-bottom:12px; } .status { width:100%; margin-left:0; } }
+  </style>
+</head>
+<body>
+  <header><div class="bar"><div class="mark">X</div><div class="brand">XOR <span>Tools</span></div><nav>Converters &nbsp; | &nbsp; Text tools</nav></div></header>
+  <main>
+    <div class="crumb"><span>Home</span> › <span>Converters</span> › XOR text decoder</div>
+    <h1>XOR to Text Converter</h1>
+    <p class="lead">Paste encoded byte values and a repeating XOR key, then decode the result into text.</p>
+    <section class="panel" aria-label="XOR decoder">
+      <div class="row">
+        <label for="encoded">Encoded bytes <small>(decimal or hexadecimal; commas, spaces, and brackets are accepted)</small></label>
+        <textarea id="encoded" spellcheck="false">[70, 34, 43, 119, 0, 71, 80, 41, 47, 119, 0, 119, 113, 29, 50, 118, 66, 89, 122, 56, 37, 34, 16, 86, 22, 41, 120, 124, 21, 107, 87, 104, 63, 33, 70, 88, 86, 4, 61, 122, 65, 107, 70, 107, 39, 97, 66, 88, 22, 38]</textarea>
+      </div>
+      <div class="row keyline">
+        <div><label for="key">XOR key <small>(repeats across the encoded bytes)</small></label><input id="key" value="[37, 91, 73, 18, 114, 52]" spellcheck="false"></div>
+        <div style="max-width:180px"><label for="encoding">Output encoding</label><select id="encoding"><option value="utf8">UTF-8 / ASCII</option><option value="latin1">Latin-1 bytes</option></select></div>
+      </div>
+      <div class="row actions"><button class="primary" id="decode">Decode</button><button id="copy">Copy result</button><button id="sample">Sample</button><button id="reset">Reset</button><span class="status" id="status" aria-live="polite"></span></div>
+      <div class="row"><label for="result">Decoded text</label><pre id="result" class="result" tabindex="0"></pre></div>
+    </section>
+    <section class="help"><h2>How it works</h2><p>Each encoded value is XORed with the matching key value. When the key is shorter than the data, it repeats from the beginning: <code>decoded[i] = encoded[i] XOR key[i % key.length]</code>.</p><p>Decimal values are used by default. Hexadecimal values are supported with an <code>0x</code> prefix, such as <code>0x46, 0x22</code>.</p></section>
+  </main>
+  <script>
+    const sampleEncoded = '[70, 34, 43, 119, 0, 71, 80, 41, 47, 119, 0, 119, 113, 29, 50, 118, 66, 89, 122, 56, 37, 34, 16, 86, 22, 41, 120, 124, 21, 107, 87, 104, 63, 33, 70, 88, 86, 4, 61, 122, 65, 107, 70, 107, 39, 97, 66, 88, 22, 38]';
+    const sampleKey = '[37, 91, 73, 18, 114, 52]';
+    const el = id => document.getElementById(id);
+    function parseBytes(text) {
+      const cleaned = text.replace(/const\s+\w+\s*=|[\[\]{}();]/g, ' ').trim();
+      const tokens = cleaned.match(/0x[0-9a-f]+|\d+/gi) || [];
+      if (!tokens.length) throw new Error('Enter at least one byte value.');
+      return tokens.map(token => {
+        const value = /^0x/i.test(token) ? parseInt(token, 16) : parseInt(token, 10);
+        if (!Number.isInteger(value) || value < 0 || value > 255) throw new Error('Every value must be a byte from 0 to 255.');
+        return value;
+      });
+    }
+    function decode() {
+      try {
+        const data = parseBytes(el('encoded').value), key = parseBytes(el('key').value);
+        const bytes = Uint8Array.from(data, (v, i) => v ^ key[i % key.length]);
+        const output = el('encoding').value === 'utf8' ? new TextDecoder('utf-8', { fatal:false }).decode(bytes) : String.fromCharCode(...bytes);
+        el('result').textContent = output; el('result').classList.remove('empty');
+        el('status').textContent = data.length + ' byte' + (data.length === 1 ? '' : 's') + ' decoded.'; el('status').classList.remove('error');
+      } catch (error) { el('status').textContent = error.message; el('status').classList.add('error'); }
+    }
+    el('decode').addEventListener('click', decode);
+    el('sample').addEventListener('click', () => { el('encoded').value = sampleEncoded; el('key').value = sampleKey; decode(); });
+    el('reset').addEventListener('click', () => { el('encoded').value = ''; el('key').value = ''; el('result').textContent = ''; el('result').classList.add('empty'); el('status').textContent = ''; });
+    el('copy').addEventListener('click', async () => { const text = el('result').textContent; if (!text) return; try { await navigator.clipboard.writeText(text); el('status').textContent = 'Result copied.'; } catch { el('status').textContent = 'Select the result and copy it manually.'; } });
+    document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); decode(); } });
+    decode();
+  </script>
+</body>
+</html>
